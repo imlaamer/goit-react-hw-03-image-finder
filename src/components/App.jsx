@@ -118,13 +118,13 @@ class App extends Component {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: isModalOpen ? 'none' : 'rgba(0, 0, 0, 0.7)',
+              backgroundColor: isModalOpen ? 'none' : 'rgba(0, 0, 0, 0.6)',
             }}
           >
             <ThreeDots
               visible={true}
-              height="80"
-              width="80"
+              height="100"
+              width="100"
               color="#3F51B5"
               radius="9"
               ariaLabel="three-dots-loading"
