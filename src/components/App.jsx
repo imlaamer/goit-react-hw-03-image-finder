@@ -1,98 +1,86 @@
 import React, { Component } from 'react';
-import Searchbar from './Searchbar/Searchbar';
+import { ThreeDots } from 'react-loader-spinner';
+import { STATUSES } from 'utils/constants';
 import * as ImageApi from 'services/images-api';
+import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-import Button from './Button/Button';
-import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
+import Button from './Button/Button';
+import ErrorMessage from './ErrorMessage/ErrorMessage';
 
 class App extends Component {
   state = {
+    status: STATUSES.idle,
     q: '',
     page: 1,
-    hits: [],
-    isMorePhotos: false,
-    id: 0,
-    error: null,
+    hits: null,
+    modalImage: null,
+    isModalOpen: false,
+    isLoadMore: false,
     isEmpty: false,
-    isModalOpen: false, // чи можна пропом?
+    error: null,
   };
-
-  componentDidMount() {
-    // if (this.state.isModalOpen) {
-    //   document.addEventListener('keydown', this.handleEscCloseModal);
-    //   console.log('hi');
-    // }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleEscCloseModal); //
-  }
 
   async componentDidUpdate(_, prevState) {
     const { q, page } = this.state;
 
     if (prevState.q !== q || prevState.page !== page) {
-      //  || prevState.id !== id ??
       try {
+        this.setState({ status: STATUSES.pending });
         const { hits, totalHits } = await ImageApi.getImages(q, page);
-
         if (hits.length === 0) {
           this.setState({ isEmpty: true });
           return;
         }
         this.setState(prevState => ({
-          hits: [...prevState.hits, ...hits],
-          isLoadMore: page < Math.ceil(totalHits / 12), //42 pages - 500 totalHots and 12 per_page
+          hits: this.state.hits ? [...prevState.hits, ...hits] : [...hits],
+          isLoadMore: page < Math.ceil(totalHits / 12),
         }));
       } catch (error) {
-        this.setState({ error: error.message });
+        this.setState({ error: error.message, status: STATUSES.error });
+      } finally {
+        this.setState({ status: STATUSES.success });
       }
-    }
-
-    if (this.state.isModalOpen) {
-      document.addEventListener('keydown', this.handleEscCloseModal);
     }
   }
 
   onSubmit = q => {
+    if (q.trim() === '') return alert('Please enter your search term');
     if (q === this.state.q) return;
-    // if (q === '')
 
     this.setState({
       q,
       page: 1,
-      hits: [],
+      hits: null,
       isLoadMore: false,
-      id: 0,
       isEmpty: false,
     });
   };
-  // нове пошукове слово і все нове має бути
 
   handleLoadMore = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  handleToggleModal = id => {
-    this.setState({ isModalOpen: !this.state.isModalOpen, id });
-    document.body.classList.toggle('no-scroll'); //?
+  handleShowModalImage = imageId => {
+    const selectedImage = this.state.hits.find(image => image.id === imageId);
+    this.setState({
+      isModalOpen: true,
+      modalImage: selectedImage,
+      status: STATUSES.pending,
+    });
   };
 
-  handleEscCloseModal = e => {
-    if (e.key === 'Escape') {
-      this.setState({ isModalOpen: !this.state.isModalOpen });
-      document.body.classList.toggle('no-scroll');
-      //KeyboardEvent { key: 'a', code: 'KeyA'}
-    }
+  handleCloseModalImage = () => {
+    this.setState({ isModalOpen: false, status: STATUSES.idle });
   };
 
   render() {
     const { hits, isLoadMore, error, isEmpty, isModalOpen } = this.state;
+    const showImages = STATUSES.success && Array.isArray(this.state.hits);
 
     return (
       <div
-        styles={{
+        style={{
           display: 'grid',
           gridTemplateColumns: '1fr',
           gridGap: 16,
@@ -101,24 +89,54 @@ class App extends Component {
       >
         <Searchbar onSubmit={this.onSubmit} />
 
-        {hits.length > 0 && (
-          <ImageGallery hits={hits} onClick={this.handleToggleModal} />
+        {showImages && (
+          <ImageGallery
+            hits={hits}
+            handleShowModalImage={this.handleShowModalImage}
+          />
         )}
 
         {isLoadMore && <Button onClick={this.handleLoadMore} />}
 
-        <Loader></Loader>
-
         {isModalOpen && (
           <Modal
             hits={hits}
-            onClick={this.handleToggleModal}
-            onKeyDown={this.handleEscCloseModal}
-            id={this.state.id}
+            handleCloseModalImage={this.handleCloseModalImage}
+            modalImage={this.state.modalImage}
           />
         )}
 
-        {error && <p style={{ textAlign: 'center' }}>Oops. {error} </p>}
+        {this.state.status === STATUSES.pending && (
+          <div
+            className="loadingBox"
+            style={{
+              width: '100vw',
+              height: '100vh',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: isModalOpen ? 'none' : 'rgba(0, 0, 0, 0.7)',
+            }}
+          >
+            <ThreeDots
+              visible={true}
+              height="80"
+              width="80"
+              color="#3F51B5"
+              radius="9"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+        )}
+
+        {this.state.status === STATUSES.error && (
+          <ErrorMessage error={this.state.error} />
+        )}
 
         {isEmpty && (
           <div
@@ -132,10 +150,9 @@ class App extends Component {
           >
             <p style={{ textAlign: 'center', fontSize: 50, margin: 0 }}>
               Sorry! <br />
-              There are no images.
+              There are no images
             </p>
           </div>
-          // cat whuile blach -  There are no images
         )}
       </div>
     );
@@ -143,15 +160,3 @@ class App extends Component {
 }
 
 export default App;
-
-//  TASKS:
-
-//зробити запити окремо від АПП ?
-
-// ітем в галерею чи норм і так ?
-
-//для чого  рандом айді ? бо в апішкі не було ?
-
-//зробити компоненти для error та There are no images.
-
-// запити робота з аксіоз, передача станів - які треба оновлювати де  і як вони будуть оновлюватись , пагінація, врахування всіх умов - пустий масив , коли показувати та хоати кнопку лоуд мо..

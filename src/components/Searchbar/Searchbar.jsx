@@ -13,7 +13,7 @@ class Searchbar extends Component {
 
   onChange = e => {
     this.setState({
-      q: e.currentTarget.value, //..
+      q: e.currentTarget.value,
     });
   };
 
@@ -40,7 +40,6 @@ class Searchbar extends Component {
             autoFocus
             placeholder="Search images and photos"
             onChange={this.onChange}
-            // value ={this.state.q}?
           />
         </form>
       </header>
@@ -49,27 +48,3 @@ class Searchbar extends Component {
 }
 
 export default Searchbar;
-
-// приймає один проп onSubmit – функцію для передачі значення інпута під час сабміту форми.
-
-// function Searchbar({ onSubmit }) {
-//   return (
-//     <header class="searchbar">
-//       <form class="form" onSubmit={onSubmit}>
-//         <button type="submit" class="button">
-//           <span class="button-label">Search</span>
-//         </button>
-
-//         <input
-//           class="input"
-//           type="text"
-//           autocomplete="off"
-//           autofocus
-//           placeholder="Search images and photos"
-//         />
-//       </form>
-//     </header>
-//   );
-// }
-
-//onSubmit -для передачі значення інпута під час сабміту форми

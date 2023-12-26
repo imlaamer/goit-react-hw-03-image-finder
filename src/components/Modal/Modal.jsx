@@ -1,33 +1,44 @@
 import css from './Modal.module.css';
+import disableScroll from 'disable-scroll';
+import React, { Component } from 'react';
 
-function Modal({ hits, onClick, onKeyDown, id }) {
-  const { Overlay, Modal } = css;
+class Modal extends Component {
+  handleOverlayClick = e => {
+    if (e.target === e.currentTarget) {
+      this.props.handleCloseModalImage();
+    }
+  };
 
-  const imageById = hits?.find(image => image.id === id);
+  handleKeyPress = e => {
+    if (e.code === 'Escape') {
+      this.props.handleCloseModalImage();
+    }
+  };
 
-  return (
-    <div
-      className={Overlay}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      tabIndex="0"
-    >
-      <div className={Modal}>
-        <img
-          src={imageById.largeImageURL}
-          alt={imageById.tags}
-          onClick={onClick}
-        />
+  componentDidMount() {
+    // document.body.style.overflow = 'hidden'; // не працює??????
+    disableScroll.on();
+    window.addEventListener('keydown', this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    // document.body.style.overflow = 'auto';
+    disableScroll.off();
+    window.removeEventListener('keydown', this.handleKeyPress);
+  }
+
+  render() {
+    const { Overlay, Modal } = css;
+    const { largeImageURL, tags } = this.props.modalImage;
+
+    return (
+      <div className={Overlay} onClick={this.handleOverlayClick}>
+        <div className={Modal}>
+          <img src={largeImageURL} alt={tags} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default Modal;
-
-// Під час кліку на елемент галереї повинно відкриватися модальне вікно з темним оверлеєм і відображатися велика версія зображення.
-//Модальне вікно повинно закриватися по натисканню клавіші ESC або по кліку на оверлеї.
-
-// Зовнішній вигляд схожий на функціонал цього VanillaJS-плагіна, тільки замість білого модального вікна рендериться зображення (у прикладі натисніть Run). Анімацію робити не потрібно!
-
-// const [{ largeImageURL, tags }] = hits; //12

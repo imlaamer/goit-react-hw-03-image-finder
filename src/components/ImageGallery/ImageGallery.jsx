@@ -1,7 +1,7 @@
 import css from './ImageGallery.module.css';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 
-function ImageGallery({ hits, onClick }) {
+function ImageGallery({ hits, handleShowModalImage }) {
   return (
     <ul className={css.ImageGallery}>
       {hits?.map(({ id, webformatURL, tags }) => (
@@ -9,7 +9,7 @@ function ImageGallery({ hits, onClick }) {
           key={id}
           webformatURL={webformatURL}
           tags={tags}
-          onClick={() => onClick(id)}
+          onClick={() => handleShowModalImage(id)}
         ></ImageGalleryItem>
       ))}
     </ul>
