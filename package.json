@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "CI=false && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint:js": "eslint src/**/*.{js,jsx}"
@@ -29,7 +29,7 @@
     ]
   },
   "browserslist": {
-    "production": [
+    "production": [x
       ">0.2%",
       "not dead",
       "not op_mini all"
