@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { ThreeDots } from 'react-loader-spinner';
 import { STATUSES } from 'utils/constants';
 import * as ImageApi from 'services/images-api';
 import Searchbar from './Searchbar/Searchbar';
@@ -7,6 +6,8 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 import Button from './Button/Button';
 import ErrorMessage from './ErrorMessage/ErrorMessage';
+import Loader from './Loader/Loader';
+import EmptyGallery from './EmptyGallery/EmptyGallery';
 
 class App extends Component {
   state = {
@@ -107,53 +108,14 @@ class App extends Component {
         )}
 
         {this.state.status === STATUSES.pending && (
-          <div
-            className="loadingBox"
-            style={{
-              width: '100vw',
-              height: '100vh',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: isModalOpen ? 'none' : 'rgba(0, 0, 0, 0.6)',
-            }}
-          >
-            <ThreeDots
-              visible={true}
-              height="100"
-              width="100"
-              color="#3F51B5"
-              radius="9"
-              ariaLabel="three-dots-loading"
-              wrapperStyle={{}}
-              wrapperClass=""
-            />
-          </div>
+          <Loader isModalOpen={this.state.isModalOpen} />
         )}
 
         {this.state.status === STATUSES.error && (
           <ErrorMessage error={this.state.error} />
         )}
 
-        {isEmpty && (
-          <div
-            style={{
-              width: '100vw',
-              height: 'calc(100vh - 70px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <p style={{ textAlign: 'center', fontSize: 50, margin: 0 }}>
-              Sorry! <br />
-              There are no images
-            </p>
-          </div>
-        )}
+        {isEmpty && <EmptyGallery />}
       </div>
     );
   }

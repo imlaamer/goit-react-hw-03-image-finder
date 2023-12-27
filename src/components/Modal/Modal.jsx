@@ -16,13 +16,11 @@ class Modal extends Component {
   };
 
   componentDidMount() {
-    // document.body.style.overflow = 'hidden'; // не працює??????
     disableScroll.on();
     window.addEventListener('keydown', this.handleKeyPress);
   }
 
   componentWillUnmount() {
-    // document.body.style.overflow = 'auto';
     disableScroll.off();
     window.removeEventListener('keydown', this.handleKeyPress);
   }
